@@ -4,7 +4,7 @@ services:
 - mongodb
 deploy:
   provider: heroku
-  api_key: secretkey12345
+  api_key: 
     secure: gjmiZaUHovdNNkBzeVoBDrKk4r4TP4QrcBuDx4Z6jOwQKhqg/qi7GGUJ8nuK692stnRVb3j/Jp3akTvj96kIzutdv8i8p3MxMbYelkNQnWFEEYMsUVAXLBL5+zUKVIKGo+qNflCILBvZ7cqo/9kHCJJ51eLgulCcxZMAunJb+BheCjzsWxYlPhDEfloGkyyTaz7W3sI6pEZFC73SjOVqz40VLjRHI5JM/JDPHpFkl1I4w5TlE8+MBOB//ZetF5opLtfGw3WbVXy7wpJNDKWHHa6mW9nh5XyOz/fpzyoYmwPW7vAoOFfjrFVyouegmmD0lQUThT2oU0y5twdEbGUZ0yUq6WhSiSEITVAOvDmYLrQToOt1/Sh6JqyN33Y4PX9WNSgyjAr0JjT/d4QVFIk+1fPzGZyj5rrgslqNTeEKRvW55ZXgiKkNappDPIY1ah9q7UFEl1RY3XrPSXMGZpJsDDNGHtx8Xq0vt1J6YGO11gOQC3WMQXcxMVkeSddCAfLghhifoaFMSIG/hiuc8Yl1TkhTp7/xMiKCLGxzgXmgiCnmbLFha6F25+jGygUA1Dg/SV+MyPppuSZRCSCWftFDhDWRCFJdmzr+ye9wwPZ2E39f5DdnGOtyp4jcAX9nbLUOeZIm5fizZ0fie9gBiia+Lm/ULy0X8he0EyxDL+W5odI=
   app: stark-mesa-50807
   on:

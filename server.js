@@ -1,14 +1,94 @@
+"use strict";
 const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+const morgan = require("morgan");
+const passport = require("passport");
+
 const app = express();
 
-const PORT = process.env.PORT || 8080;
+mongoose.Promise = global.Promise;
+
+const { CLIENT_ORIGIN, PORT, DATABASE_URL } = require("./config");
+const { router: authRouter, localStrategy, jwtStrategy } = require("./auth");
+const { router: friendsRouter } = require("./friends");
+const { router: messagesRouter } = require("./messages");
+const { router: usersRouter } = require("./users");
+const { router: communityRouter } = require("./community");
+
+app.use(cors({ origin: CLIENT_ORIGIN }));
+app.use(morgan("common"));
+app.use(express.json());
+app.use(
+  bodyParser.json({
+    type: "application/json"
+  })
+);
+app.use(
+  bodyParser.urlencoded({
+    extended: true
+  })
+);
+
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
+app.use("/auth", authRouter);
+app.use("/friends", friendsRouter);
+app.use("/messages", messagesRouter);
+app.use("/users", usersRouter);
+app.use("/community", communityRouter);
+
+const jwtAuth = passport.authenticate("jwt", { session: false });
 
 app.get("/", (req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(PORT, () => {
-  console.log(`App is listening at port ${PORT}`);
-});
+let server;
 
-module.exports = { app };
+function runServer(databaseUrl, port = PORT) {
+  return new Promise((resolve, reject) => {
+    mongoose.connect(
+      databaseUrl,
+      err => {
+        if (err) {
+          return reject(err);
+        }
+
+        server = app
+          .listen(port, () => {
+            console.log(`Your app is listening on port ${port}`);
+            resolve();
+          })
+          .on("error", err => {
+            mongoose.disconnect();
+            reject(err);
+          });
+      },
+      { useNewUrlParser: true }
+    );
+  });
+}
+
+function closeServer() {
+  return mongoose.disconnect().then(() => {
+    return new Promise((resolve, reject) => {
+      console.log("Closing server");
+      server.close(err => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
+    });
+  });
+}
+
+if (require.main === module) {
+  runServer(DATABASE_URL).catch(err => console.error(err));
+}
+
+module.exports = { app, runServer, closeServer };

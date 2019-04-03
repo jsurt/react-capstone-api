@@ -25,15 +25,15 @@ router.get("/:id", jwtAuth, (req, res) => {
     });
 });
 
-const testPost = "5c992166c843846052c73b86";
+const testPost = "5c9ce10f4c6dea04f37e62ac";
 
 //Add a friend
 router.post("/:id", jwtAuth, (req, res) => {
   console.log("Posting new friend");
-  User.findByIdAndUpdate(req.params.id)
+  User.findByIdAndUpdate(req.user.id)
     .then(user => {
       console.log(testPost);
-      user.friends.push(testPost);
+      user.friends.push(req.params.id);
       user.save();
       res.status(201).end();
     })
@@ -46,10 +46,10 @@ router.post("/:id", jwtAuth, (req, res) => {
 
 //Delete a friend
 router.delete("/:id", jwtAuth, (req, res) => {
-  User.findByIdAndUpdate(req.params.id)
+  console.log(req.user.id);
+  User.findByIdAndUpdate(req.user.id)
     .then(user => {
-      console.log(testPost);
-      user.friends.pull(testPost);
+      user.friends.pull(req.params.id);
       user.save();
       res.status(204).end();
     })

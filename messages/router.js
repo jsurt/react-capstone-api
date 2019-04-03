@@ -19,8 +19,8 @@ router.get("/test", jwtAuth, (req, res) => {
 });
 
 //Write get endpoint here... maybe like 'messages/:id' where ':id' is the receiver id
-router.get("/:id", jwtAuth, (req, res) => {
-  Message.find({ receiverId: req.params.id })
+router.get("/", jwtAuth, (req, res) => {
+  Message.find({ receiverId: req.user.id })
     .then(msgs => {
       console.log(msgs);
       res.status(200).json({
@@ -35,7 +35,7 @@ router.get("/:id", jwtAuth, (req, res) => {
 });
 
 //Post endpoint for new message
-router.post("/:id", jwtAuth, (req, res) => {
+router.post("/", jwtAuth, (req, res) => {
   const requiredFields = ["receiverId", "subject", "content"];
   requiredFields.forEach(field => {
     if (!(field in req.body)) {
@@ -44,7 +44,7 @@ router.post("/:id", jwtAuth, (req, res) => {
     }
   });
   Message.create({
-    senderId: req.params.id,
+    senderId: req.user.id,
     receiverId: req.body.receiverId,
     isSent: true,
     isRead: false,

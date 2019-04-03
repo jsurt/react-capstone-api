@@ -11,7 +11,7 @@ router.get("/test", jwtAuth, (req, res) => {
 });
 
 //Get all users
-router.get("/", jwtAuth, (req, res) => {
+router.get("/", (req, res) => {
   User.find()
     .then(users => {
       res.status(200).json({
@@ -25,8 +25,8 @@ router.get("/", jwtAuth, (req, res) => {
     });
 });
 
-router.get("/:id", jwtAuth, (req, res) => {
-  User.findById(req.params.id)
+router.get("/data", jwtAuth, (req, res) => {
+  User.findById(req.user.id)
     .populate("friends")
     .then(user => {
       console.log(user, "hello there");
@@ -45,9 +45,8 @@ router.get("/:id", jwtAuth, (req, res) => {
 router.post("/", (req, res) => {
   console.log(req.body);
   const requiredFields = [
-    "firstName",
-    "lastName",
-    "email",
+    "firstname",
+    "lastname",
     "username",
     "password",
     "state"
@@ -55,13 +54,12 @@ router.post("/", (req, res) => {
   requiredFields.forEach(field => {
     if (!(field in req.body)) {
       const missingFieldMessage = `Missing ${field} in request body`;
-      return res.status(400).send(missingFieldMessage);
+      return res.status(400).json({ message: missingFieldMessage });
     }
   });
   const stringFields = [
-    "firstName",
-    "lastName",
-    "email",
+    "firstname",
+    "lastname",
     "username",
     "password",
     "state"
@@ -125,9 +123,9 @@ router.post("/", (req, res) => {
     });
   }
 
-  let { firstName, lastName, email, username, password, state } = req.body;
-  firstName = firstName.trim();
-  lastName = lastName.trim();
+  let { firstname, lastname, username, password, state } = req.body;
+  firstname = firstname.trim();
+  lastname = lastname.trim();
 
   return User.find({ username })
     .count()
@@ -144,9 +142,8 @@ router.post("/", (req, res) => {
     })
     .then(hash => {
       return User.create({
-        firstName,
-        lastName,
-        email,
+        firstname,
+        lastname,
         username,
         password: hash,
         state

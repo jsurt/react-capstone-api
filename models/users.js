@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const userSchema = mongoose.Schema({
   firstname: String,
   lastname: String,
-  email: String,
   username: {
     type: String,
     unique: true,
@@ -30,8 +29,8 @@ const userSchema = mongoose.Schema({
 userSchema.methods.serialize = function() {
   return {
     id: this._id,
-    firstName: this.firstName || "",
-    lastName: this.lastName || "",
+    firstname: this.firstname || "",
+    lastname: this.lastname || "",
     username: this.username || "",
     state: this.state || "",
     friends: this.friends || ""
@@ -39,7 +38,7 @@ userSchema.methods.serialize = function() {
 };
 
 userSchema.virtual("fullName").get(() => {
-  return `${this.firstName} ${this.lastName}`;
+  return `${this.firstname} ${this.lastname}`;
 });
 
 userSchema.methods.validatePassword = function(password) {

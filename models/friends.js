@@ -4,7 +4,7 @@ const friendSchema = mongoose.Schema({
   firstname: String,
   lastname: String,
   username: String,
-  state: String,
+  location: String,
   friendOf: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,

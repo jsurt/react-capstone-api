@@ -32,8 +32,11 @@ const messageSchema = mongoose.Schema({
 messageSchema.methods.serialize = function() {
   return {
     id: this._id,
+    senderId: this.senderId,
+    receiverId: this.receiverId,
     subject: this.subject,
     content: this.content,
+    isSent: this.isSent,
     isRead: this.isRead,
     sentAt: this.sentAt
   };

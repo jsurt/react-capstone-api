@@ -21,8 +21,10 @@ router.get("/test", jwtAuth, (req, res) => {
 //Write get endpoint here... maybe like 'messages/:id' where ':id' is the receiver id
 router.get("/", jwtAuth, (req, res) => {
   Message.find({ receiverId: req.user.id })
+    .populate("senderId")
     .then(msgs => {
-      console.log(msgs);
+      // console.log("Hello World");
+      // console.log(msgs.serialize());
       res.status(200).json({
         messages: msgs.map(msgs => msgs.serialize())
       });
@@ -36,6 +38,7 @@ router.get("/", jwtAuth, (req, res) => {
 
 //Post endpoint for new message
 router.post("/", jwtAuth, (req, res) => {
+  console.log("hello world");
   const requiredFields = ["receiverId", "subject", "content"];
   requiredFields.forEach(field => {
     if (!(field in req.body)) {

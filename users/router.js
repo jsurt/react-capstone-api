@@ -11,7 +11,7 @@ router.get("/test", jwtAuth, (req, res) => {
 });
 
 //Get all users
-router.get("/", (req, res) => {
+router.get("/", jwtAuth, (req, res) => {
   User.find()
     .then(users => {
       res.status(200).json({
@@ -25,7 +25,25 @@ router.get("/", (req, res) => {
     });
 });
 
+//Get users by state
+router.get("/state/:state", jwtAuth, (req, res) => {
+  const state = req.params.state;
+  const stateCapitalized = state.toUpperCase();
+  User.find({ location: stateCapitalized })
+    .then(users => {
+      res.status(200).json({
+        users: users.map(users => users.serialize())
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      const errorMessage = "Internal server error has occurred";
+      res.status(500).json({ message: errorMessage });
+    });
+});
+
 router.get("/data", jwtAuth, (req, res) => {
+  console.log("Hello world");
   User.findById(req.user.id)
     .populate("friends")
     .then(user => {
@@ -49,7 +67,7 @@ router.post("/", (req, res) => {
     "lastname",
     "username",
     "password",
-    "state"
+    "location"
   ];
   requiredFields.forEach(field => {
     if (!(field in req.body)) {
@@ -62,7 +80,7 @@ router.post("/", (req, res) => {
     "lastname",
     "username",
     "password",
-    "state"
+    "location"
   ];
   const nonStringField = stringFields.find(
     field => field in req.body && typeof req.body[field] !== "string"
@@ -123,7 +141,7 @@ router.post("/", (req, res) => {
     });
   }
 
-  let { firstname, lastname, username, password, state } = req.body;
+  let { firstname, lastname, username, password, location } = req.body;
   firstname = firstname.trim();
   lastname = lastname.trim();
 
@@ -146,7 +164,7 @@ router.post("/", (req, res) => {
         lastname,
         username,
         password: hash,
-        state
+        location
       });
     })
     .then(user => {

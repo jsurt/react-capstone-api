@@ -22,7 +22,7 @@ const localAuth = passport.authenticate("local", {
 
 // '/auth/login' works when the localAuth middleware is taken out
 router.post("/login", localAuth, (req, res) => {
-  console.log(req.user.serialize());
+  console.log("hello world", req.user.serialize());
   const authToken = createAuthToken(req.user.serialize());
   res.json({ authToken });
 });

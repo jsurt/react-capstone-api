@@ -20,10 +20,10 @@ router.get("/", jwtAuth, (req, res) => {
     });
 });
 
-//Sort users by state
-//When jwt is finished change 'req.params.state' to 'req.user.state'
-router.get("/:state", jwtAuth, (req, res) => {
-  User.find({ state: req.params.state })
+//Sort users by location
+//When jwt is finished change 'req.params.location' to 'req.user.location'
+router.get("/:location", jwtAuth, (req, res) => {
+  User.find({ location: req.params.location })
     .then(users => {
       res.status(200).json({
         users: users.map(users => users.serialize())

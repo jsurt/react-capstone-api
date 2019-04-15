@@ -69,12 +69,22 @@ router.post("/", (req, res) => {
     "password",
     "location"
   ];
-  requiredFields.forEach(field => {
-    if (!(field in req.body)) {
-      const missingFieldMessage = `Missing ${field} in request body`;
-      return res.status(400).json({ message: missingFieldMessage });
-    }
-  });
+  const missingField = requiredFields.find(field => !(field in req.body));
+
+  if (missingField) {
+    return res.status(422).json({
+      code: 422,
+      reason: "ValidationError",
+      message: "Missing field",
+      location: missingField
+    });
+  }
+  // requiredFields.forEach(field => {
+  //   if (!(field in req.body)) {
+  //     const missingFieldMessage = `Missing ${field} in request body`;
+  //     return res.status(422).json({ message: missingFieldMessage });
+  //   }
+  // });
   const stringFields = [
     "firstname",
     "lastname",

@@ -14,7 +14,7 @@ mongoose.Promise = global.Promise;
 const { CLIENT_ORIGIN, PORT, DATABASE_URL } = require("./config");
 const { router: authRouter, localStrategy, jwtStrategy } = require("./auth");
 const { router: friendsRouter } = require("./friends");
-const { router: messagesRouter } = require("./messages");
+const { router: matchesRouter } = require("./matches");
 const { router: usersRouter } = require("./users");
 const { router: communityRouter } = require("./community");
 
@@ -37,7 +37,7 @@ passport.use(jwtStrategy);
 
 app.use("/auth", authRouter);
 app.use("/friends", friendsRouter);
-app.use("/messages", messagesRouter);
+app.use("/matches", matchesRouter);
 app.use("/users", usersRouter);
 app.use("/community", communityRouter);
 

@@ -2,7 +2,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
-const { Message } = require("../models/messages");
+const { Match } = require("../models/matches");
 const passport = require("passport");
 const jwtAuth = passport.authenticate("jwt", { session: false });
 
@@ -20,13 +20,14 @@ router.get("/test", jwtAuth, (req, res) => {
 
 //Write get endpoint here... maybe like 'messages/:id' where ':id' is the receiver id
 router.get("/", jwtAuth, (req, res) => {
-  Message.find({ receiverId: req.user.id })
+  Match.find({ $or: [{ receiverId: req.user.id }, { senderId: req.user.id }] })
     .populate("senderId")
-    .then(msgs => {
-      // console.log("Hello World");
-      // console.log(msgs.serialize());
+    .populate("receiverId")
+    .then(matches => {
+      //console.log("Hello World");
+      //console.log(matches);
       res.status(200).json({
-        messages: msgs.map(msgs => msgs.serialize())
+        matches: matches.map(match => match.serialize())
       });
     })
     .catch(err => {
@@ -39,26 +40,29 @@ router.get("/", jwtAuth, (req, res) => {
 //Post endpoint for new message
 router.post("/", jwtAuth, (req, res) => {
   console.log("hello world");
-  const requiredFields = ["receiverId", "subject", "content"];
+  const requiredFields = ["receiverId", "message"];
   requiredFields.forEach(field => {
     if (!(field in req.body)) {
       const missingFieldMessage = `Missing ${field} field in request body`;
       return res.status(400).send(missingFieldMessage);
     }
   });
-  Message.create({
+  Match.create({
     senderId: req.user.id,
     receiverId: req.body.receiverId,
     isSent: true,
-    isRead: false,
-    subject: req.body.subject,
-    content: req.body.content,
-    sentAt: req.body.sentAt
+    isAccepted: false,
+    isCompleted: false,
+    message: req.body.message,
+    score: null,
+    comments: [],
+    sentAt: req.body.sentAt,
+    datePlayed: null
   })
-    .then(msg => {
-      console.log("Message sent");
-      const messageSentMsg = "The message has been sent";
-      res.status(201).json({ message: messageSentMsg });
+    .then(match => {
+      console.log("Match invite sent");
+      const matchSentMsg = "The match invitation has been sent";
+      res.status(201).json({ message: matchSentMsg });
     })
     .catch(err => {
       console.error(err);
@@ -69,16 +73,37 @@ router.post("/", jwtAuth, (req, res) => {
 
 //Update message to change 'isRead' from TRUE to FALSE
 router.put("/:id", jwtAuth, (req, res) => {
-  let _id = req.params.id;
-  const updateableField = "isRead";
-  if (!(updateableField in req.body)) {
-    const uneditableFieldMsg = `Only ${updateableField} field can be updated`;
-    return res.status(400).send(uneditableFieldMsg);
-  }
-  Message.findByIdAndUpdate({ _id }, { isRead: true })
-    .then(msg => {
-      console.log("Updating message");
-      res.status(204).end();
+  //console.log(req.body);
+  const _id = req.params.id;
+  const { isAccepted, isCompleted, comment, score, datePlayed } = req.body;
+  const updateableField = [
+    "isAccepted",
+    "isCompleted",
+    "comment",
+    "score",
+    "datePlayed"
+  ];
+  console.log(isAccepted);
+  updateableField.forEach(field => {
+    if (!(field in req.body)) {
+      const uneditableFieldMsg = `Only ${updateableField} field can be updated`;
+      return res.status(400).send(uneditableFieldMsg);
+    }
+  });
+  Match.findByIdAndUpdate(_id, { isAccepted, isCompleted })
+    .then(match => {
+      console.log(match.comments);
+      if (score !== null) {
+        (match.score = score), (match.datePlayed = datePlayed);
+        match.save();
+      } else if (comment.length > 0) {
+        match.comments.push({ content: comment });
+        match.save();
+      } else {
+        console.log("I do not know what to put here");
+      }
+      console.log("Updating match to" + match);
+      res.status(204).json({ message: "Updated match" });
     })
     .catch(err => {
       console.error(err);
@@ -89,10 +114,10 @@ router.put("/:id", jwtAuth, (req, res) => {
 
 //Delete message
 router.delete("/:id", jwtAuth, (req, res) => {
-  Message.findByIdAndDelete(req.params.id)
+  Match.findByIdAndDelete(req.params.id)
     .then(msg => {
-      const deleteMessage = `Message with id ${req.params.id} has been deleted`;
-      res.status(204).send(deleteMessage);
+      const deleteMatch = `Message with id ${req.params.id} has been deleted`;
+      res.status(204).send(deleteMatch);
     })
     .catch(err => {
       console.error(err);
